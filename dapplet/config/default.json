@@ -1,0 +1,14 @@
+{
+  "main": {
+    "overlayUrl": "",
+    "nearWalletLink": ""
+  },
+  "test": {
+    "overlayUrl": "",
+    "nearWalletLink": "https://wallet.testnet.near.org"
+  },
+  "dev": {
+    "overlayUrl": "http://localhost:3000",
+    "nearWalletLink": "https://wallet.testnet.near.org"
+  }
+}
