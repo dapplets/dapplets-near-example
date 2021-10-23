@@ -10,11 +10,6 @@ interface ICtx {
   text: string
 }
 
-interface IData {
-  ctx: ICtx
-  nearWalletLink?: string
-}
-
 export default () => {
 
   const [parsedCtx, setParsedCtx] = useState<ICtx>();
@@ -22,9 +17,8 @@ export default () => {
   const [savedTweets, setSavedTweets] = useState<string[]>();
 
   useEffect(() => {
-    bridge.onData((data: IData) => {
-      const { ctx } = data;
-      setParsedCtx(ctx);
+    bridge.onData((data?: ICtx) => {
+      setParsedCtx(data);
     });
     bridge.isWalletConnected().then(async(isWalletConnected) => {
       let accountName: string | undefined

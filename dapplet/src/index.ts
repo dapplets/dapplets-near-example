@@ -5,7 +5,6 @@ import EXAMPLE_IMG from './icons/near_dapplet_icon.svg';
 export default class TwitterFeature {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any,  @typescript-eslint/explicit-module-boundary-types
   @Inject('twitter-adapter.dapplet-base.eth') public adapter: any;
-  private _nearWalletLink: string;
   private _overlay: any;
 
   async activate(): Promise<void> {
@@ -15,7 +14,6 @@ export default class TwitterFeature {
       changeMethods: ['addTweet', 'removeTweet'],
     });
 
-    this._nearWalletLink = await Core.storage.get('nearWalletLink');
     const overlayUrl = await Core.storage.get('overlayUrl');
     this._overlay = Core
       .overlay({ url: overlayUrl, title: 'Dapplets x NEAR example' })
@@ -81,6 +79,8 @@ export default class TwitterFeature {
         },
       });
 
+    Core.onAction(() => this.openOverlay());
+
     const { button } = this.adapter.exports;
     this.adapter.attachConfig({
       POST: (ctx: any) =>
@@ -91,14 +91,14 @@ export default class TwitterFeature {
             tooltip: 'Parse Tweet',
             exec: () => {
               console.log('parsedCtx:', ctx);
-              this.openOverlay({ ctx });
+              this.openOverlay(ctx);
             },
           },
         }),
     });
   }
 
-  async openOverlay(props: any): Promise<void> {
-    this._overlay.send('data', { ...props, nearWalletLink: this._nearWalletLink });
+  async openOverlay(props?: any): Promise<void> {
+    this._overlay.send('data', props);
   }
 }
