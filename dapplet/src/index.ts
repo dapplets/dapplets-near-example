@@ -14,70 +14,70 @@ export default class TwitterFeature {
       changeMethods: ['addTweet', 'removeTweet'],
     });
 
-    const overlayUrl = await Core.storage.get('overlayUrl');
-    this._overlay = Core
-      .overlay({ url: overlayUrl, title: 'Dapplets x NEAR example' })
-      .listen({
-        connectWallet: async () => {
-          try {
-            const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
-            await wallet.connect();
-            this._overlay.send('connectWallet_done', wallet.accountId);
-          } catch (err) {
-            this._overlay.send('connectWallet_undone', err);
-          }
-        },
-        disconnectWallet: async () => {
-          try {
-            const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
-            await wallet.disconnect();
-            this._overlay.send('disconnectWallet_done');
-          } catch (err) {
-            this._overlay.send('disconnectWallet_undone', err);
-          }
-        },
-        isWalletConnected: async () => {
-          try {
-            const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
-            const isWalletConnected = await wallet.isConnected();
-            this._overlay.send('isWalletConnected_done', isWalletConnected);
-          } catch (err) {
-            this._overlay.send('isWalletConnected_undone', err);
-          }
-        },
-        getCurrentNearAccount: async () => {
-          try {
-            const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
-            this._overlay.send('getCurrentNearAccount_done', wallet.accountId);
-          } catch (err) {
-            this._overlay.send('getCurrentNearAccount_undone', err);
-          }
-        },
-        getTweets: async (op: any, { type, message }: any) => {
-          try {
-            const tweets = await contract.getTweets({ nearId: message.accountId });
-            this._overlay.send('getTweets_done', tweets);
-          } catch (err) {
-            this._overlay.send('getTweets_undone', err);
-          }
-        },
-        addTweet: async (op: any, { type, message }: any) => {
-          try {
-            await contract.addTweet({ tweet: message.tweet });
-            this._overlay.send('addTweet_done');
-          } catch (err) {
-            this._overlay.send('addTweet_undone', err);
-          }
-        },
-        removeTweet: async (op: any, { type, message }: any) => {
-          try {
-            await contract.removeTweet({ tweet: message.tweet });
-            this._overlay.send('removeTweet_done');
-          } catch (err) {
-            this._overlay.send('removeTweet_undone', err);
-          }
-        },
-      });
+    if (!this._overlay) {
+      this._overlay = (<any>Core).overlay({ name: 'overlay', title: 'Dapplets x NEAR example' })
+        .listen({
+          connectWallet: async () => {
+            try {
+              const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+              await wallet.connect();
+              this._overlay.send('connectWallet_done', wallet.accountId);
+            } catch (err) {
+              this._overlay.send('connectWallet_undone', err);
+            }
+          },
+          disconnectWallet: async () => {
+            try {
+              const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+              await wallet.disconnect();
+              this._overlay.send('disconnectWallet_done');
+            } catch (err) {
+              this._overlay.send('disconnectWallet_undone', err);
+            }
+          },
+          isWalletConnected: async () => {
+            try {
+              const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+              const isWalletConnected = await wallet.isConnected();
+              this._overlay.send('isWalletConnected_done', isWalletConnected);
+            } catch (err) {
+              this._overlay.send('isWalletConnected_undone', err);
+            }
+          },
+          getCurrentNearAccount: async () => {
+            try {
+              const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+              this._overlay.send('getCurrentNearAccount_done', wallet.accountId);
+            } catch (err) {
+              this._overlay.send('getCurrentNearAccount_undone', err);
+            }
+          },
+          getTweets: async (op: any, { type, message }: any) => {
+            try {
+              const tweets = await contract.getTweets({ nearId: message.accountId });
+              this._overlay.send('getTweets_done', tweets);
+            } catch (err) {
+              this._overlay.send('getTweets_undone', err);
+            }
+          },
+          addTweet: async (op: any, { type, message }: any) => {
+            try {
+              await contract.addTweet({ tweet: message.tweet });
+              this._overlay.send('addTweet_done');
+            } catch (err) {
+              this._overlay.send('addTweet_undone', err);
+            }
+          },
+          removeTweet: async (op: any, { type, message }: any) => {
+            try {
+              await contract.removeTweet({ tweet: message.tweet });
+              this._overlay.send('removeTweet_done');
+            } catch (err) {
+              this._overlay.send('removeTweet_undone', err);
+            }
+          },
+        });
+    }
 
     Core.onAction(() => this.openOverlay());
 
@@ -85,7 +85,6 @@ export default class TwitterFeature {
     this.adapter.attachConfig({
       POST: (ctx: any) =>
         button({
-          initial: 'DEFAULT',
           DEFAULT: {
             img: EXAMPLE_IMG,
             tooltip: 'Parse Tweet',

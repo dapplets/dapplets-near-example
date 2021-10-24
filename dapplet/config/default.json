@@ -1,11 +1,5 @@
 {
-  "main": {
-    "overlayUrl": ""
-  },
-  "test": {
-    "overlayUrl": ""
-  },
-  "dev": {
-    "overlayUrl": "http://localhost:3000"
-  }
+  "main": {},
+  "test": {},
+  "dev": {}
 }

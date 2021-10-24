@@ -135,7 +135,7 @@ export default () => {
           </>
         )}
 
-        {savedTweets && (
+        {savedTweets && savedTweets.length > 0 && (
           <>
             <h4>
               Saved Tweets:
