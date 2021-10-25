@@ -13,14 +13,14 @@ interface ICtx {
 export default () => {
 
   const [parsedCtx, setParsedCtx] = useState<ICtx>();
-  const [nearAccount, setNearAccount] = useState<string>();
-  const [savedTweets, setSavedTweets] = useState<string[]>();
+  //const [nearAccount, setNearAccount] = useState<string>();
+  //const [savedTweets, setSavedTweets] = useState<string[]>();
 
   useEffect(() => {
     bridge.onData((data?: ICtx) => {
       setParsedCtx(data);
     });
-    bridge.isWalletConnected().then(async(isWalletConnected) => {
+    /* bridge.isWalletConnected().then(async(isWalletConnected) => {
       let accountName: string | undefined
       if (isWalletConnected) {
         accountName = await bridge.getCurrentNearAccount();
@@ -30,10 +30,10 @@ export default () => {
       let tweets: string[] | undefined = undefined;
       if (accountName) tweets = await bridge.getTweets(accountName);
       setSavedTweets(tweets);
-    });
+    }); */
   }, []);
 
-  const handleSaveTweet = async (e: any) => {
+  /* const handleSaveTweet = async (e: any) => {
     e.preventDefault();
     e.stopPropagation();
     const stringifiedCtx = JSON.stringify(parsedCtx);
@@ -51,11 +51,11 @@ export default () => {
     let tweets: string[] | undefined = undefined;
     if (nearAccount) tweets = await bridge.getTweets(nearAccount);
     setSavedTweets(tweets);
-  }
+  } */
 
   return (
     <>
-      <header style={{ justifyContent: nearAccount ? 'space-between' : 'center' }}>
+      {/* <header style={{ justifyContent: nearAccount ? 'space-between' : 'center' }}>
         {!nearAccount ? (
             <Button
               basic
@@ -96,7 +96,7 @@ export default () => {
                 Log out
               </Button>
             </>)}
-      </header>
+      </header> */}
 
       <main>
         <div className='title'>
@@ -123,19 +123,19 @@ export default () => {
                   {parsedCtx.text}
                 </Card.Description>
               </Card.Content>
-              <Card.Content extra>
+              {/* <Card.Content extra>
                   <Button
                     disabled={!nearAccount || savedTweets?.includes(JSON.stringify(parsedCtx))}
                     onClick={handleSaveTweet}
                   >
                     Save to NEAR
                   </Button>
-              </Card.Content>
+              </Card.Content>*/}
             </Card>
           </>
         )}
 
-        {savedTweets && savedTweets.length > 0 && (
+        {/* {savedTweets && savedTweets.length > 0 && (
           <>
             <h4>
               Saved Tweets:
@@ -168,7 +168,7 @@ export default () => {
               );
             })}
           </>
-        )}
+        )} */}
       </main>
     </>
   );
