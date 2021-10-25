@@ -4,11 +4,11 @@
 
 ## 1. Introduction
 
-Dapplets - applications that interact with web-pages, augment them by inserting different widgets, parsing pages data and adding some new functionality. It may improve user experience of using social media, video services and other sourses.
+**Dapplets** - applications that interact with web-pages, augment them by inserting different widgets, parsing pages data and adding some new functionality. It may improve user experience of using social media, video services and other sourses.
 
-Dapplets use the extension we are creating. It gives a simple api for dapplets developers and big abilities for our community.
+Dapplets use the **extension** we are creating. It gives a simple api for dapplets developers and big abilities for our community. Our platform is decentralized. We use **NEAR** and **Etherium** networks for our registries and contracts, and decentralized storages, like **Swarm**, **IPFS** and **Arweave** for hosting dapplets code and multimedia.
 
-To use our platform at first you need to install the Dapplets extension. Currently it's on the alfa-stage and not published to Google Chrome or some other store. To install it follow this steps:
+To use our platform at first you need to install the **Dapplets extension**. Currently it's on the alfa-stage and not published to Google Chrome or some other store. To install it follow this steps:
 
 1. Open one of the following browsers: Google Chrome, Firefox, Brave, Tor.
 
@@ -110,7 +110,7 @@ Torn on Dapplets tab. You will see the dev badge near our dapplet. Turn it on.
 
 Now you can see additional buttons on tweets. Click on the button and open console. You will see the parsed context of the tweet.
 
-![image](https://user-images.githubusercontent.com/43613968/138610166-7db8f5cc-7dc5-4552-91ea-622c9c9fb8d2.png)
+![image](https://user-images.githubusercontent.com/43613968/138664005-a8cf6930-b53b-4122-baa8-282d263c8cba.png)
 
 You've done it! Congratulations!!! Go back to the code.
 
@@ -176,8 +176,179 @@ export default class TwitterFeature {
 }
 ```
 
+Open the manifest `./dapplet/dapplet.json`.
+
+```json
+{
+  "name": { "$ref": "package.json#/name" },
+  "branch": "default",
+  "version": { "$ref": "package.json#/version" },
+  "type": "FEATURE",
+  "title": "Dapplets x NEAR example",
+  "description": { "$ref": "package.json#/description" },
+  "main": { "$ref": "package.json#/main" },
+  "icon": "src/icons/near_dapplet_icon_70.png",
+  "contextIds": ["twitter-adapter.dapplet-base.eth"],
+  "config": {
+    "schema": "config/schema.json",
+    "default": "config/default.json"
+  },
+  "overlays": {
+    "overlay": "http://localhost:3000"
+  },
+  "dependencies": {
+    "twitter-adapter.dapplet-base.eth": "0.9.0"
+  }
+}
+```
+
+Here we see the URL of the overlay named `'overlay'` for developers mode. During the publication of the dapplet to the registry the overlay will be published to the decentralized storage.
+
+Also we see the Twirtter Adapter in the dependencies with the using version.
+
 Let's go to the overlay.
 
 ### 2.2. Overlay
 
-(coming soon...)
+As I wrote above, the overlay can be created the way you want. We use React in most of our projects. I will not analyze the entire overlay code, but only the important points for our architectural aspects.
+
+For interaction with the dapplet install the npm package `dapplet-overlay-bridge`:
+
+```bash
+npm i dapplet-overlay-bridge
+```
+
+To get the data from the dapplet we need the class Bridge in the overlay part. Look at the module `./overlay/src/dappletBridge.ts`. There is the `onData` method where we subscribe on the `'data'` event, which we've described in the dapplet.
+
+```typescript
+onData(callback: (data?: any) => void) {
+ this.subscribe('data', (data: any) => {
+   this._subId = Math.trunc(Math.random() * 1_000_000_000);
+   callback(data);
+   return this._subId.toString();
+ });
+}
+```
+
+Then we use it in the `App.tsx` module.
+
+```typescript
+/* */
+import { bridge } from './dappletBridge';
+/* */
+export default () => {
+  const [parsedCtx, setParsedCtx] = useState<ICtx>();
+  /* */
+  useEffect(() => {
+    bridge.onData((data?: ICtx) => {
+      setParsedCtx(data);
+    });
+    /* */
+  }, []);
+  /* */
+}
+```
+
+Now save changes and reload the Twitter page. On button click you will see the overlay with the selected tweet data.
+
+![image](https://user-images.githubusercontent.com/43613968/138663433-e93af4ab-d96d-4e72-bb56-952737281dbe.png)
+
+Thats cool! But our goal is to save this data to NEAR chain and get it back. So let's see the contract.
+
+### 2.3. NEAR contract
+
+Look at the th module `./contract`. There is a simple NEAR smart contract written in AssemblyScript with `create-near-app`.
+
+In `./contract/assembly/index.ts` we see one `PersistentUnorderedMap` named `tweetsByNearId`. It stores an array of serialized tweets data by the current user ID. It has methods for saving, removing and retrieving saved tweets.
+
+All the nessesary data about how to write, test and deploy NEAR smart contracts you can find in the official [documentation](https://docs.near.org/) and [Learn NEAR](https://learnnear.club/) courses and guides.
+
+Let's see how to connect to the smart contract and use its methods in the dapplet.
+
+Add the folowing code to the `activate` method of the `./dapplet/src/index.ts` module:
+
+```typescript
+ const contract = Core.contract('near', 'dev-1634890606019-41631155713650', {
+   viewMethods: ['getTweets'],
+   changeMethods: ['addTweet', 'removeTweet'],
+ });
+```
+
+There is a `Core.contract` method that receives 3 parameters: name of the network ('near' or 'etherium'), contract name and object with view and change methods.
+
+Now we will make the contract methods available in the overlay. In order to pass methods through the dapplets bridge, add a `listen` function to the overlay call. Don't be afraid, just copy and paste this code :)
+
+```typescript
+if (!this._overlay) {
+  this._overlay = (<any>Core).overlay({ name: 'overlay', title: 'Dapplets x NEAR example' })
+   .listen({
+     connectWallet: async () => {
+       try {
+         const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+         await wallet.connect();
+         this._overlay.send('connectWallet_done', wallet.accountId);
+       } catch (err) {
+         this._overlay.send('connectWallet_undone', err);
+       }
+     },
+     disconnectWallet: async () => {
+       try {
+         const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+         await wallet.disconnect();
+         this._overlay.send('disconnectWallet_done');
+       } catch (err) {
+         this._overlay.send('disconnectWallet_undone', err);
+       }
+     },
+     isWalletConnected: async () => {
+       try {
+         const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+         const isWalletConnected = await wallet.isConnected();
+         this._overlay.send('isWalletConnected_done', isWalletConnected);
+       } catch (err) {
+         this._overlay.send('isWalletConnected_undone', err);
+       }
+     },
+     getCurrentNearAccount: async () => {
+       try {
+         const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+         this._overlay.send('getCurrentNearAccount_done', wallet.accountId);
+       } catch (err) {
+         this._overlay.send('getCurrentNearAccount_undone', err);
+       }
+     },
+     getTweets: async (op: any, { type, message }: any) => {
+       try {
+         const tweets = await contract.getTweets({ nearId: message.accountId });
+         this._overlay.send('getTweets_done', tweets);
+       } catch (err) {
+         this._overlay.send('getTweets_undone', err);
+       }
+     },
+     addTweet: async (op: any, { type, message }: any) => {
+       try {
+         await contract.addTweet({ tweet: message.tweet });
+         this._overlay.send('addTweet_done');
+       } catch (err) {
+         this._overlay.send('addTweet_undone', err);
+       }
+     },
+     removeTweet: async (op: any, { type, message }: any) => {
+       try {
+         await contract.removeTweet({ tweet: message.tweet });
+         this._overlay.send('removeTweet_done');
+       } catch (err) {
+         this._overlay.send('removeTweet_undone', err);
+       }
+     },
+   });
+}
+```
+
+The last three asynchronius functions pass our contract methods to the overlay. The four beginning functions need to pair wallet to the dapplet. To get the `Wallet` object we use a method **`Core.wallet`** with named parameters `name` (`near` or `ethereum`) and `network`. Wallet has methods **`isConnected`**, **`connect`**, **`disconnect`** and parameter **`accountId`**.
+
+...
+
+
+
+
