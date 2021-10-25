@@ -57,7 +57,7 @@ Let'a look at the each module.
 
 Look at the `/dapplet/src/index.ts`.
 
-At first we create injectable class with decorator `@Injectable` and use `@Ingect` to add **Twitter Adapter** as the `adapter` class variable. Also create `activate` method. It runs when selected adapter finds specific context and is loading. It will contain all the main logic. 
+At first we create injectable class with decorator `@Injectable` and use `@Inject` to add **Twitter Adapter** as the `adapter` class variable. Also create `activate` method. It runs when selected adapter finds specific context and is loading. It will contain all the main logic. 
 
 ```typescript
 @Injectable
@@ -210,7 +210,7 @@ Let's go to the overlay.
 
 ### 2.2. Overlay
 
-As I wrote above, the overlay can be created the way you want. We use React in most of our projects. I will not analyze the entire overlay code, but only the important points for our architectural aspects.
+As I wrote above, the overlay can be created the way you want. We use **React** in most of our projects. I will not analyze the entire overlay code, but only the important points for our architectural aspects.
 
 For interaction with the dapplet install the npm package `dapplet-overlay-bridge`:
 
@@ -218,7 +218,7 @@ For interaction with the dapplet install the npm package `dapplet-overlay-bridge
 npm i dapplet-overlay-bridge
 ```
 
-To get the data from the dapplet we need the class Bridge in the overlay part. Look at the module `./overlay/src/dappletBridge.ts`. Add the `onData` method where we subscribe on the `'data'` event, which we've described in the dapplet.
+To get the data from the dapplet we need the class **Bridge** in the overlay part. Look at the module `./overlay/src/dappletBridge.ts`. Here is the `onData` method where we subscribe on the `'data'` event, which we've described in the dapplet.
 
 ```typescript
 _subId: number = 0;
