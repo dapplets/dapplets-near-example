@@ -13,7 +13,7 @@
     "default": "config/default.json"
   },
   "overlays": {
-    "overlay": "http://localhost:3000"
+    "overlay": "https://localhost:3000"
   },
   "dependencies": {
     "twitter-adapter.dapplet-base.eth": "0.9.0"
