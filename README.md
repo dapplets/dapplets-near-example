@@ -39,7 +39,7 @@ Let's study how this dapplet works and why Dapplets is a NEAR frendly platform.
 
 The goal of the example is to show interaction of NEAR and Dapplets. If it is your very first meeting with Dapplets we recommend you to try our [documentation.](https://docs.dapplets.org) It contains several exercises that explane how to create dapplets and adapters from simple to complex ones. We are highly recommend to go through the [ex01](https://docs.dapplets.org/docs/extra-button) and [ex04](https://docs.dapplets.org/docs/overlays) examples that describe how to create the simpliest dapplet and the dapplet with the overlay. The knowledges you'll get make easy to understand the current example.
 
-The initial code for this example is here: [dapplets-near-example.](https://github.com/dapplets/dapplets-near-example)
+The initial code for this example is here: [exercise](https://github.com/dapplets/dapplets-near-example/tree/exercise)
 
 You can clone this repo. It won't work directly. Try following steps to start it.
 
@@ -194,7 +194,7 @@ Open the manifest `./dapplet/dapplet.json`.
     "default": "config/default.json"
   },
   "overlays": {
-    "overlay": "http://localhost:3000"
+    "overlay": "https://localhost:3000"
   },
   "dependencies": {
     "twitter-adapter.dapplet-base.eth": "0.9.0"
@@ -218,9 +218,11 @@ For interaction with the dapplet install the npm package `dapplet-overlay-bridge
 npm i dapplet-overlay-bridge
 ```
 
-To get the data from the dapplet we need the class Bridge in the overlay part. Look at the module `./overlay/src/dappletBridge.ts`. There is the `onData` method where we subscribe on the `'data'` event, which we've described in the dapplet.
+To get the data from the dapplet we need the class Bridge in the overlay part. Look at the module `./overlay/src/dappletBridge.ts`. Add the `onData` method where we subscribe on the `'data'` event, which we've described in the dapplet.
 
 ```typescript
+_subId: number = 0;
+
 onData(callback: (data?: any) => void) {
  this.subscribe('data', (data: any) => {
    this._subId = Math.trunc(Math.random() * 1_000_000_000);
@@ -255,7 +257,7 @@ Now save changes and reload the Twitter page. On button click you will see the o
 
 Thats cool! But our goal is to save this data to NEAR chain and get it back. So let's see the contract.
 
-### 2.3. NEAR contract
+### 2.3. NEAR smart contract
 
 Look at the th module `./contract`. There is a simple NEAR smart contract written in AssemblyScript with `create-near-app`.
 
@@ -345,10 +347,123 @@ if (!this._overlay) {
 }
 ```
 
-The last three asynchronius functions pass our contract methods to the overlay. The four beginning functions need to pair wallet to the dapplet. To get the `Wallet` object we use a method **`Core.wallet`** with named parameters `name` (`near` or `ethereum`) and `network`. Wallet has methods **`isConnected`**, **`connect`**, **`disconnect`** and parameter **`accountId`**.
+The last three asynchronius functions pass our contract methods to the overlay. The first four functions need to pair the wallet to the dapplet. To get the `Wallet` object we use a method **`Core.wallet`** with named parameters `name` (`near` or `ethereum`) and `network`. Wallet has methods **`isConnected`**, **`connect`**, **`disconnect`** and parameter **`accountId`**.
 
-...
+Next step is to change `./overlay/src/dappletBridge.ts`. We have to make functions, that was described in the dapplet, available in the overlay. Copy the foolowing code to the **`Bridge`** class:
 
+```typescript
+async connectWallet(): Promise<string> {
+ return this.call(
+   'connectWallet',
+   null,
+   'connectWallet_done',
+   'connectWallet_undone'
+ );
+}
 
+async disconnectWallet(): Promise<string> {
+  return this.call(
+    'disconnectWallet',
+    null,
+    'disconnectWallet_done',
+    'disconnectWallet_undone'
+  );
+}
 
+async isWalletConnected(): Promise<boolean> {
+  return this.call(
+    'isWalletConnected',
+    null,
+    'isWalletConnected_done',
+    'isWalletConnected_undone'
+  );
+}
 
+async getCurrentNearAccount(): Promise<string> {
+  return this.call(
+    'getCurrentNearAccount',
+    null,
+    'getCurrentNearAccount_done',
+    'getCurrentNearAccount_undone'
+  );
+}
+
+async getTweets(accountId: string): Promise<string[]> {
+  return this.call(
+    'getTweets',
+    { accountId },
+    'getTweets_done',
+    'getTweets_undone'
+  );
+}
+
+async addTweet(tweet: string): Promise<string> {
+  return this.call(
+    'addTweet',
+    { tweet },
+    'addTweet_done',
+    'addTweet_undone'
+  );
+}
+
+async removeTweet(tweet: string): Promise<string> {
+  return this.call(
+    'removeTweet',
+    { tweet },
+    'removeTweet_done',
+    'removeTweet_undone'
+  );
+}
+
+public async call(
+  method: string,
+  args: any,
+  callbackEventDone: string,
+  callbackEventUndone: string
+): Promise<any> {
+  return new Promise((res, rej) => {
+    this.publish(this._subId.toString(), {
+      type: method,
+      message: args,
+    });
+    this.subscribe(callbackEventDone, (result: any) => {
+      this.unsubscribe(callbackEventDone);
+      this.unsubscribe(callbackEventUndone);
+      res(result);
+    });
+    this.subscribe(callbackEventUndone, () => {
+      this.unsubscribe(callbackEventUndone);
+      this.unsubscribe(callbackEventDone);
+      rej('The transaction was rejected.');
+    });
+  });
+}
+```
+
+Now we can use contract methods in the overlay modules. We can authorize the dapplet with the NEAR testnet wallet and save the data of the selected tweets to the smart contract. Also we see the saved data in the overlay.
+
+Uncommit all the commited code in the `./overlay/src/App.tsx`. Save changes and reload the Twitter page.
+
+![image](https://user-images.githubusercontent.com/43613968/138758615-c3f396d9-a15f-4964-967a-d771d25b833a.png)
+
+The cherry on top will be the addition of the ability to view saved tweets without parsing new ones. To do this, it is enough to add the `Core.onAction` method to the `activate` in `./dapplet/src/index.ts` and pass the function of opening the overlay to it.
+
+```typescript
+Core.onAction(() => this.openOverlay());
+```
+
+Now you will see the home icon near the dapplets name.
+
+![image](https://user-images.githubusercontent.com/43613968/138760150-ad966eb5-46e3-423e-9097-094b7297f169.png)
+
+Click on the button provides opening of the overlay with saved tweets.
+
+![image](https://user-images.githubusercontent.com/43613968/138760448-185d6165-68e5-4e5f-bed8-6b90735476cb.png)
+
+Congratulations to everyone who made it to the end of the tutorial! Hope you succeed.
+
+Here is the result: [dapplets-near-example](https://github.com/dapplets/dapplets-near-example)
+
+If something didn't work out for you or you still have questions, welcome to our chats in [Discord](https://discord.gg/YcxbkcyjMV) and [Telegram](https://t.me/dapplets).
+
+Thank you for your time. I hope this new knowledge will be useful to you in developing impressive and successful applications on the Dapplets platform using the capabilities of the NEAR protocol 🚀✨
