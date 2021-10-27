@@ -100,6 +100,8 @@ npm i
 npm start
 ```
 
+> :warning: Since the browser is blocking pages with problematic security certificates, go to https://localhost:3001/dapplet.json when the application is running and agree to run in **insecure mode**
+
 Open the extension. Go to Developer tab and turn on the development server: `https://localhost:3001/dapplet.json`.
 
 ![image](https://user-images.githubusercontent.com/43613968/138610500-d40d1a49-040d-4524-afd4-18ff630f33ca.png)
@@ -202,6 +204,8 @@ Open the manifest `./dapplet/dapplet.json`.
 }
 ```
 
+> :warning: Since the browser is blocking pages with problematic security certificates, go to https://localhost:3000 when the application is running and agree to run in **insecure mode**.
+
 Here we see the URL of the overlay named `'overlay'` for developers mode. During the publication of the dapplet to the registry the overlay will be published to the decentralized storage.
 
 Also we see the Twirtter Adapter in the dependencies with the using version.
@@ -215,7 +219,7 @@ As I wrote above, the overlay can be created the way you want. We use **React** 
 For interaction with the dapplet install the npm package `dapplet-overlay-bridge`:
 
 ```bash
-npm i dapplet-overlay-bridge
+npm i @dapplets/dapplet-overlay-bridge
 ```
 
 To get the data from the dapplet we need the class **Bridge** in the overlay part. Look at the module `./overlay/src/dappletBridge.ts`. Here is the `onData` method where we subscribe on the `'data'` event, which we've described in the dapplet.
