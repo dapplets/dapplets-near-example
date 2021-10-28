@@ -1,5 +1,7 @@
 # Dapplets × NEAR example
 
+[![Open in Gitpod!](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/dapplets/dapplets-near-example)
+
 **Dapplets × NEAR example** is a [Dapplet](https://dapplets.org) (an Augmentation App) that can parse Twitter tweets and store them in the NEAR contract. It can also display your saved tweets in the overlay page.
 
 ## 1. Introduction
