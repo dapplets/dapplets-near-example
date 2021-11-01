@@ -1,14 +1,14 @@
 # Dapplets × NEAR example
 
-**Dapplets × NEAR example** is a [Dapplet](https://dapplets.org) (an Augmentation App) that can parse Twitter tweets and store them in the NEAR contract. It can also display your saved tweets in the overlay page.
+**Dapplets × NEAR example** is a [Dapplet](https://dapplets.org) (an Augmentation App) that can parse Twitter posts and store them in the NEAR contract. It can also display your saved tweets on the overlay page.
 
 ## 1. Introduction
 
-**Dapplets** - applications that interact with web-pages, augment them by inserting different widgets, parsing pages data and adding some new functionality. It may improve user experience of using social media, video services and other sourses.
+**Dapplets** - applications that interact with web-pages, augment them by inserting different widgets, parse the pages’ data and add some new functionalities. They can improve the user experience when using social media, video services and other sourses.
 
-Dapplets use the **extension** we are creating. It gives a simple api for dapplets developers and big abilities for our community. Our platform is decentralized. We use **NEAR** and **Etherium** networks for our registries and contracts, and decentralized storages, like **Swarm**, **IPFS** and **Arweave** for hosting dapplets code and multimedia.
+Dapplets use the extension we are creating. This extension gives a simple api for dapplets developers and big abilities for the dapplets community. Our platform is decentralized. We use NEAR and Ethereum networks for our registries and contracts. We also use decentralized storages, like Swarm, IPFS and Arweave for hosting dapplets code and multimedia.
 
-To use our platform at first you need to install the **Dapplets extension**. Currently it's on the alfa-stage and not published to Google Chrome or some other store. To install it follow this steps:
+To use our platform at first you need to install the **Dapplets extension** . Currently it’s in the alfa-stage and is not published to Google Chrome or any other store. To install it follow this steps:
 
 1. Open one of the following browsers: Google Chrome, Firefox, Brave, Tor.
 
@@ -37,7 +37,7 @@ To use our platform at first you need to install the **Dapplets extension**. Cur
 
 Let's study how this dapplet works and why Dapplets is a NEAR frendly platform.
 
-The goal of the example is to show interaction of NEAR and Dapplets. If it is your very first meeting with Dapplets we recommend you to try our [documentation.](https://docs.dapplets.org) It contains several exercises that explane how to create dapplets and adapters from simple to complex ones. We are highly recommend to go through the [ex01](https://docs.dapplets.org/docs/extra-button) and [ex04](https://docs.dapplets.org/docs/overlays) examples that describe how to create the simpliest dapplet and the dapplet with the overlay. The knowledges you'll get make easy to understand the current example.
+The goal of this example is to show the interaction between NEAR and Dapplets. If this is your first encounter with Dapplets we recommend trying our [documentation](https://docs.dapplets.org) first. It contains several exercises that explain how to create dapplets and adapters, from simple to complex ones. We highly recommend going through the [ex01](https://docs.dapplets.org/docs/extra-button) and [ex04](https://docs.dapplets.org/docs/overlays) examples that describe how to create the most basic dapplets and dapplets with an overlay. The knowledge you will get will make it easier to understand the current example.
 
 The initial code for this example is here: [exercise](https://github.com/dapplets/dapplets-near-example/tree/exercise)
 
@@ -45,11 +45,11 @@ You can clone this repo. It won't work directly. Try following steps to start it
 
 Let's look at the **structure**. There are three components: **dapplet**, **overlay** and **contract**. 
 
-**Dapplet** is the entry point of the application. It use adapters to interact with web-pages, define conext to augment and widgets to insert. Also the core functions of the extension are  available there. We use **Typescript** in our progect.
+**Dapplet** is the entry point of the application. It uses adapters to interact with web-pages, defines context to augment and widgets to insert. You can find the core functions of the extension inside a dapplet. We use **Typescript** in our project.
 
-We define **Overlay** as a place where a user can do something with parsed data, connect to core dapplet's functions through the **dapplet bridge** and manage augmentation parameters. It is an impotrant part of the application but it runs in another environment and published as a separate module. In the most cases we use **React** as one of the most popular frameworks. But you can use a framework that you prefer or the pure javascript or typescript.
+We define **Overlay** as a place where a user can do something with parsed data, connect to core dapplet's functions through the **dapplet bridge** and manage augmentation parameters. It is an impotrant part of the application, but it runs in another environment and is published as a separate module. In most cases we use **React** as one of the most popular frameworks. But you can use a framework that you prefer or pure javascript or typescript.
 
-**Contract** does not connect directly with other modules and may located outside of the dapplet. But this simple **NEAR** contract created only for this dapplet. So it's comfortable to place it here.
+**Contract** does not connect directly with other modules and may be located outside of the dapplet. However, this simple **NEAR** contract is created specifically for this dapplet. This is why it's convenient to place it in the application structure.
 
 Let'a look at the each module.
 
@@ -57,7 +57,7 @@ Let'a look at the each module.
 
 Look at the `/dapplet/src/index.ts`.
 
-At first we create injectable class with decorator `@Injectable` and use `@Inject` to add **Twitter Adapter** as the `adapter` class variable. Also create `activate` method. It runs when selected adapter finds specific context and is loading. It will contain all the main logic. 
+At first we create injectable class with decorator `@Injectable` and use `@Inject` to add the **Twitter Adapter** as the `adapter` class variable. Also create `activate` method. It runs when the selected adapter finds specific context and is loading. It will contain all the main logic. 
 
 ```typescript
 @Injectable
@@ -89,9 +89,9 @@ this.adapter.attachConfig({
 });
 ```
 
-Look at the code. We get widget `button` from the adapter. Then run adapter's method `attachConfig`. It receives an object with names of contexts, that will be used, as keys. Values are functions, that receives parsed context as the only argument and returns widget or the array of widgets. You may also return `null`, `false` or `undefined`.
+Look at the code. We get widget `button` from the adapter. Then run adapter's method `attachConfig`. It receives an object with the names of contexts, that will be used, as keys. Values are functions that receive parsed context as the only argument and return a widget or an array of widgets. You may also return `null`, `false` or `undefined`.
 
-**Widget** is a function that receives an object consisting of widget states. State parameters are described in the adapters documentation. **Twitter Adapter** documentation you can find [here](https://docs.dapplets.org/docs/adapters-docs-list#name=twitter-adapter.dapplet-base.eth&title=Twitter%20adapter&version=v0.9.0). In our case we add image to the button and tooltip. `exec` is a function that runs on click. Now we just show the parsed contect in the console.
+**Widget** is a function that receives an object consisting of widget states. State parameters are described in the adapters documentation. You can find **Twitter Adapter** documentation [here](https://docs.dapplets.org/docs/adapters-docs-list#name=twitter-adapter.dapplet-base.eth&title=Twitter%20adapter&version=v0.9.0). In our case we add an image to the button and tooltip. `exec` is a function that runs when clicked. Now we just show the parsed context in the console.
 
 Run the dapplet:
 
@@ -106,17 +106,17 @@ Open the extension. Go to Developer tab and turn on the development server: `htt
 
 ![image](https://user-images.githubusercontent.com/43613968/138610500-d40d1a49-040d-4524-afd4-18ff630f33ca.png)
 
-Torn on Dapplets tab. You will see the dev badge near our dapplet. Turn it on.
+Turn on the Dapplets tab. You will see the dev badge near our dapplet. Turn it on.
 
 ![image](https://user-images.githubusercontent.com/43613968/138610553-c4ce8cb9-bd19-46f4-8e60-a1fbd932f8a1.png)
 
-Now you can see additional buttons on tweets. Click on the button and open console. You will see the parsed context of the tweet.
+Now you can see additional buttons on our tweets. Click on the button and open the console. You will see the parsed context of the tweet.
 
 ![image](https://user-images.githubusercontent.com/43613968/138664005-a8cf6930-b53b-4122-baa8-282d263c8cba.png)
 
 You've done it! Congratulations!!! Go back to the code.
 
-We want to show parsed data not in the console but to the users. We use an overlay for this. But before implementing the overlay, add the interaction logic between the dapplet and the overlay to the dapplet.
+We want to show parsed data not in the console but to the users. We will use an overlay for this. But before implementing the overlay, add the interaction logic between the dapplet and the overlay to the dapplet.
 
 Let's change our code. Add private class variable `_overlay` of type `any`. In the `activate` add the following code:
 
@@ -126,7 +126,7 @@ if (!this._overlay) {
 }
 ```
 
-Core function `Core.overlay` (typing problems will be fixed soon) receives an object with a **name** of the overlay and overlay **title** and returns the `Overay` object which we save in the `_overlay` variable.
+Core function `Core.overlay` (typing problems will be fixed soon) receives an object with a **name** of the overlay and an overlay **title** and returns the `Overay` object which we save in the `_overlay` variable.
 
 Let's add **openOverlay** method to the class:
 
@@ -135,9 +135,9 @@ async openOverlay(props?: any): Promise<void> {
  this._overlay.send('data', props);
 }
 ```
-In this method we call the method `send` of the overlay. It takes two arguments: the name of this data and the data to send to the overlay.
+In this example we call the method `send` the overlay. It takes two arguments: the name of this data and the data to send to the overlay.
 
-Add `openOverlay` to `exec` function and pass the parsed context to the overlay. The current code of the dapplet:
+Add `openOverlay` to `exec` function and pass the parsed context to the overlay. This is the current code of the dapplet:
 
 ```typescript
 import {} from '@dapplets/dapplet-extension';
@@ -206,15 +206,16 @@ Open the manifest `./dapplet/dapplet.json`.
 
 > :warning: Since the browser is blocking pages with problematic security certificates, go to https://localhost:3000 when the application is running and agree to run in **insecure mode**.
 
-Here we see the URL of the overlay named `'overlay'` for developers mode. During the publication of the dapplet to the registry the overlay will be published to the decentralized storage.
+Here we see the URL of the overlay named `'overlay'` that will be used in developers mode. During the publication of the dapplet to the registry the overlay will be published to the decentralized storage.
 
-Also we see the Twirtter Adapter in the dependencies with the using version.
+We also see the Twitter Adapter in the dependencies. We are using the 0.9.0 version in the example.
 
 Let's go to the overlay.
 
 ### 2.2. Overlay
 
-As I wrote above, the overlay can be created the way you want. We use **React** in most of our projects. I will not analyze the entire overlay code, but only the important points for our architectural aspects.
+As we previously mentioned, the overlay can be created in any way you want. We use **React** in most of our projects.
+We will not be analyzing the entire overlay code, but only the important points for our architectural aspects.
 
 For interaction with the dapplet install the npm package `dapplet-overlay-bridge`:
 
@@ -255,7 +256,7 @@ export default () => {
 }
 ```
 
-Now save changes and reload the Twitter page. On button click you will see the overlay with the selected tweet data.
+Now save the changes and reload the Twitter page. When you click on the button you will see the overlay with the selected tweet data.
 
 ![image](https://user-images.githubusercontent.com/43613968/138663433-e93af4ab-d96d-4e72-bb56-952737281dbe.png)
 
@@ -263,15 +264,16 @@ Thats cool! But our goal is to save this data to NEAR chain and get it back. So 
 
 ### 2.3. NEAR smart contract
 
+
 Look at the th module `./contract`. There is a simple NEAR smart contract written in AssemblyScript with `create-near-app`.
 
-In `./contract/assembly/index.ts` we see one `PersistentUnorderedMap` named `tweetsByNearId`. It stores an array of serialized tweets data by the current user ID. It has methods for saving, removing and retrieving saved tweets.
+In `./contract/assembly/index.ts` we see one `PersistentUnorderedMap` named `tweetsByNearId`. It stores an array of serialized tweets data with the current user ID. It has methods for saving, removing and retrieving saved tweets.
 
-All the nessesary data about how to write, test and deploy NEAR smart contracts you can find in the official [documentation](https://docs.near.org/) and [Learn NEAR](https://learnnear.club/) courses and guides.
+You can find all the nessesary data about how to write, test and deploy NEAR smart contracts in the official [documentation](https://docs.near.org/) and [Learn NEAR](https://learnnear.club/) courses and guides.
 
 Let's see how to connect to the smart contract and use its methods in the dapplet.
 
-Add the folowing code to the `activate` method of the `./dapplet/src/index.ts` module:
+Add the following code to the `activate` method of the `./dapplet/src/index.ts` module:
 
 ```typescript
  const contract = Core.contract('near', 'dev-1634890606019-41631155713650', {
@@ -282,7 +284,7 @@ Add the folowing code to the `activate` method of the `./dapplet/src/index.ts` m
 
 There is a `Core.contract` method that receives 3 parameters: name of the network ('near' or 'etherium'), contract name and object with view and change methods.
 
-Now we will make the contract methods available in the overlay. In order to pass methods through the dapplets bridge, add a `listen` function to the overlay call. Don't be afraid, just copy and paste this code :)
+Now we will make the contract methods available in the overlay. In order to pass the methods through the dapplets bridge, add a `listen` function to the overlay call. Don't be afraid, just copy and paste this code :)
 
 ```typescript
 if (!this._overlay) {
@@ -351,9 +353,9 @@ if (!this._overlay) {
 }
 ```
 
-The last three asynchronius functions pass our contract methods to the overlay. The first four functions need to pair the wallet to the dapplet. To get the `Wallet` object we use a method **`Core.wallet`** with named parameters `name` (`near` or `ethereum`) and `network`. Wallet has methods **`isConnected`**, **`connect`**, **`disconnect`** and parameter **`accountId`**.
+The last three asynchronius functions pass our contract methods to the overlay. The first four functions need to pair the wallet to the dapplet. To get the `Wallet` object we use the **`Core.wallet`** method, with named parameters `name` (`near` or `ethereum`) and `network`. The wallet has methods **`isConnected`**, **`connect`**, **`disconnect`** and parameter **`accountId`**.
 
-Next step is to change `./overlay/src/dappletBridge.ts`. We have to make functions, that was described in the dapplet, available in the overlay. Copy the foolowing code to the **`Bridge`** class:
+The next step is to change `./overlay/src/dappletBridge.ts`. We have to make functions that were described in the dapplet, available in the overlay. Copy the following code to the **`Bridge`** class:
 
 ```typescript
 async connectWallet(): Promise<string> {
@@ -444,13 +446,13 @@ public async call(
 }
 ```
 
-Now we can use contract methods in the overlay modules. We can authorize the dapplet with the NEAR testnet wallet and save the data of the selected tweets to the smart contract. Also we see the saved data in the overlay.
+Now we can use contract methods in the overlay modules. We can authorize the dapplet with the NEAR testnet wallet and save the data of the selected tweets to the smart contract. We can also see our saved data in the overlay.
 
 Uncommit all the commited code in the `./overlay/src/App.tsx`. Save changes and reload the Twitter page.
 
 ![image](https://user-images.githubusercontent.com/43613968/138758615-c3f396d9-a15f-4964-967a-d771d25b833a.png)
 
-The cherry on top will be the addition of the ability to view saved tweets without parsing new ones. To do this, it is enough to add the `Core.onAction` method to the `activate` in `./dapplet/src/index.ts` and pass the function of opening the overlay to it.
+A cherry on top will be the addition of the ability to view saved tweets without parsing new ones. To do this, it is enough to add the `Core.onAction` method to the `activate` in `./dapplet/src/index.ts` and pass the function of opening the overlay to it.
 
 ```typescript
 Core.onAction(() => this.openOverlay());
@@ -460,14 +462,14 @@ Now you will see the home icon near the dapplets name.
 
 ![image](https://user-images.githubusercontent.com/43613968/138760150-ad966eb5-46e3-423e-9097-094b7297f169.png)
 
-Click on the button provides opening of the overlay with saved tweets.
+A click on the button opens an overlay with saved tweets.
 
 ![image](https://user-images.githubusercontent.com/43613968/138760448-185d6165-68e5-4e5f-bed8-6b90735476cb.png)
 
-Congratulations to everyone who made it to the end of the tutorial! Hope you succeed.
+Congratulations to everyone who made it to the end of the tutorial! We hope it was successful.
 
 Here is the result: [dapplets-near-example](https://github.com/dapplets/dapplets-near-example)
 
-If something didn't work out for you or you still have questions, welcome to our chats in [Discord](https://discord.gg/YcxbkcyjMV) and [Telegram](https://t.me/dapplets).
+If something didn't work out for you, or you still have some questions, you are welcome to our chats in [Discord](https://discord.gg/YcxbkcyjMV) and [Telegram](https://t.me/dapplets).
 
-Thank you for your time. I hope this new knowledge will be useful to you in developing impressive and successful applications on the Dapplets platform using the capabilities of the NEAR protocol 🚀✨
+Thank you for your time. We hope this new knowledge will be useful, and you will go on to develop impressive and successful applications on the Dapplets platform using the capabilities of NEAR protocol 🚀✨
