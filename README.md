@@ -4,19 +4,20 @@
 
 ## 1. Introduction
 
-**Dapplets** - applications that interact with web-pages, augment them by inserting different widgets, parse the pages’ data and add some new functionalities. They can improve the user experience when using social media, video services and other sourses.
+**Dapplets** - applications that interact with web-pages, augment them by inserting different widgets, parse the pages’ data and add some new functionalities. They can improve the user experience when using social media, video services and other sources.
 
-Dapplets use the extension we are creating. This extension gives a simple api for dapplets developers and big abilities for the dapplets community. Our platform is decentralized. We use NEAR and Ethereum networks for our registries and contracts. We also use decentralized storages, like Swarm, IPFS and Arweave for hosting dapplets code and multimedia.
+Dapplets use the extension we are creating. This extension gives a simple API for dapplets developers and big abilities for the dapplets community. Our platform is decentralized. We use NEAR and Ethereum networks for our registries and contracts. We also use decentralized storages, like Swarm, IPFS and SIA for hosting dapplets code and multimedia.
 
-To use our platform at first you need to install the **Dapplets extension** . Currently it’s in the alfa-stage and is not published to Google Chrome or any other store. To install it follow this steps:
+To use our platform at first you need to install the **Dapplets Extension** . Currently it’s in the alpha-stage and is not published to Google Chrome or any other store. To install it follow this steps:
 
 1. Open one of the following browsers: Google Chrome, Firefox, Brave, Tor.
 
 > The following steps are described for Google Chrome. The steps may differ in other browsers.
 
-2. Download the [**Dapplet Browser Extension**](https://github.com/dapplets/dapplet-extension/releases/latest).
+2. Download the [**Dapplets Browser Extension**](https://github.com/dapplets/dapplet-extension/releases/latest).
 
 3. Open **chrome://extensions** in a new tab.
+
 4. Switch the **Developer mode** on and press **F5** to refresh the page.
 
    ![image](https://user-images.githubusercontent.com/43613968/117107075-ad076580-ad89-11eb-9046-58dd1ede2868.png)
@@ -39,15 +40,15 @@ Let's study how this dapplet works and why Dapplets is a NEAR frendly platform.
 
 The goal of this example is to show the interaction between NEAR and Dapplets. If this is your first encounter with Dapplets we recommend trying our [documentation](https://docs.dapplets.org) first. It contains several exercises that explain how to create dapplets and adapters, from simple to complex ones. We highly recommend going through the [ex01](https://docs.dapplets.org/docs/extra-button) and [ex04](https://docs.dapplets.org/docs/overlays) examples that describe how to create the most basic dapplets and dapplets with an overlay. The knowledge you will get will make it easier to understand the current example.
 
-The initial code for this example is here: [exercise](https://github.com/dapplets/dapplets-near-example/tree/exercise)
+The initial code for this example is in a separate branch: [exercise](https://github.com/dapplets/dapplets-near-example/tree/exercise)
 
 You can clone this repo. It won't work directly. Try following steps to start it.
 
 Let's look at the **structure**. There are three components: **dapplet**, **overlay** and **contract**. 
 
-**Dapplet** is the entry point of the application. It uses adapters to interact with web-pages, defines context to augment and widgets to insert. You can find the core functions of the extension inside a dapplet. We use **Typescript** in our project.
+**Dapplet** is the entry point of the application. It uses adapters for interaction with web-pages, defining contexts to augment and widgets to insert. You can find the core functions of the extension inside a dapplet. We use **TypeScript** in our project.
 
-We define **Overlay** as a place where a user can do something with parsed data, connect to core dapplet's functions through the **dapplet bridge** and manage augmentation parameters. It is an impotrant part of the application, but it runs in another environment and is published as a separate module. In most cases we use **React** as one of the most popular frameworks. But you can use a framework that you prefer or pure javascript or typescript.
+We define **Overlay** as a place where a user can do something with parsed data, connect to core dapplet's functions through the **dapplet bridge** and manage augmentation parameters. It is an impotrant part of the application, but it runs in another environment and is published as a separate bundle. In most cases we use **React** as one of the most popular frameworks. But you can use a framework that you prefer or pure JavaScript or TypeScript.
 
 **Contract** does not connect directly with other modules and may be located outside of the dapplet. However, this simple **NEAR** contract is created specifically for this dapplet. This is why it's convenient to place it in the application structure.
 
@@ -126,7 +127,7 @@ if (!this._overlay) {
 }
 ```
 
-Core function `Core.overlay` (typing problems will be fixed soon) receives an object with a **name** of the overlay and an overlay **title** and returns the `Overay` object which we save in the `_overlay` variable.
+Core function `Core.overlay` (typing problems will be fixed soon) receives an object with a **name** of the overlay and an overlay **title** and returns the `Overlay` object which we save in the `_overlay` variable.
 
 Let's add **openOverlay** method to the class:
 
@@ -217,7 +218,7 @@ Let's go to the overlay.
 As we previously mentioned, the overlay can be created in any way you want. We use **React** in most of our projects.
 We will not be analyzing the entire overlay code, but only the important points for our architectural aspects.
 
-For interaction with the dapplet install the npm package `dapplet-overlay-bridge`:
+For interaction with the dapplet install the npm package `@dapplets/dapplet-overlay-bridge`:
 
 ```bash
 npm i @dapplets/dapplet-overlay-bridge
