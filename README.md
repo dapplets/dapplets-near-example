@@ -474,3 +474,12 @@ Here is the result: [dapplets-near-example](https://github.com/dapplets/dapplets
 If something didn't work out for you, or you still have some questions, you are welcome to our chats in [Discord](https://discord.gg/YcxbkcyjMV) and [Telegram](https://t.me/dapplets).
 
 Thank you for your time. We hope this new knowledge will be useful, and you will go on to develop impressive and successful applications on the Dapplets platform using the capabilities of NEAR protocol 🚀✨
+
+## Contacts
+
+Web: [dapplets.org](https://dapplets.org)
+Docs: [docs.dapplets.org](https://docs.dapplets.org)
+GitHub: [github.com/dapplets](https://github.com/dapplets)
+Discord: [discord.gg/YcxbkcyjMV](https://discord.gg/YcxbkcyjMV)
+Telegram: [t.me/dapplets](https://t.co/4HBqF5JEbh?amp=1)
+Twitter: [@dappletsproject](https://twitter.com/dappletsproject)
