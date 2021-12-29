@@ -1,6 +1,6 @@
 {
   "name": "dapplets-near-example",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An example of a dapplet using the NEAR protocol. Learn NEAR x Dapplets Project",
   "main": "lib/index.js",
   "scripts": {
@@ -15,7 +15,7 @@
   "author": "Dapplets Project",
   "license": "MIT",
   "devDependencies": {
-    "@dapplets/dapplet-extension": "develop",
+    "@dapplets/dapplet-extension": "latest",
     "@rollup/plugin-commonjs": "^17.1.0",
     "@rollup/plugin-image": "^2.0.6",
     "@rollup/plugin-json": "^4.1.0",

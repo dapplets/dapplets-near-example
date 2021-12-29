@@ -123,7 +123,7 @@ Let's change our code. Add private class variable `_overlay` of type `any`. In t
 
 ```typescript
 if (!this._overlay) {
-   this._overlay = (<any>Core).overlay({ name: 'overlay', title: 'Dapplets x NEAR example' });
+  this._overlay = Core.overlay({ name: 'overlay', title: 'Dapplets x NEAR example' });
 }
 ```
 
@@ -133,7 +133,7 @@ Let's add **openOverlay** method to the class:
 
 ```typescript
 async openOverlay(props?: any): Promise<void> {
- this._overlay.send('data', props);
+  this._overlay.send('data', props);
 }
 ```
 In this example we call the method `send` the overlay. It takes two arguments: the name of this data and the data to send to the overlay.
@@ -154,7 +154,7 @@ export default class TwitterFeature {
   async activate(): Promise<void> {
 
     if (!this._overlay) {
-      this._overlay = (<any>Core).overlay({ name: 'overlay', title: 'Dapplets x NEAR example' });
+      this._overlay = Core.overlay({ name: 'overlay', title: 'Dapplets x NEAR example' });
     }
 
     const { button } = this.adapter.exports;
@@ -277,10 +277,10 @@ Let's see how to connect to the smart contract and use its methods in the dapple
 Add the following code to the `activate` method of the `./dapplet/src/index.ts` module:
 
 ```typescript
- const contract = Core.contract('near', 'dev-1634890606019-41631155713650', {
-   viewMethods: ['getTweets'],
-   changeMethods: ['addTweet', 'removeTweet'],
- });
+const contract = await Core.contract('near', 'dev-1634890606019-41631155713650', {
+  viewMethods: ['getTweets'],
+  changeMethods: ['addTweet', 'removeTweet'],
+});
 ```
 
 There is a `Core.contract` method that receives 3 parameters: name of the network ('near' or 'etherium'), contract name and object with view and change methods.
@@ -289,68 +289,68 @@ Now we will make the contract methods available in the overlay. In order to pass
 
 ```typescript
 if (!this._overlay) {
-  this._overlay = (<any>Core).overlay({ name: 'overlay', title: 'Dapplets x NEAR example' })
-   .listen({
-     connectWallet: async () => {
-       try {
-         const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
-         await wallet.connect();
-         this._overlay.send('connectWallet_done', wallet.accountId);
-       } catch (err) {
-         this._overlay.send('connectWallet_undone', err);
-       }
-     },
-     disconnectWallet: async () => {
-       try {
-         const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
-         await wallet.disconnect();
-         this._overlay.send('disconnectWallet_done');
-       } catch (err) {
-         this._overlay.send('disconnectWallet_undone', err);
-       }
-     },
-     isWalletConnected: async () => {
-       try {
-         const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
-         const isWalletConnected = await wallet.isConnected();
-         this._overlay.send('isWalletConnected_done', isWalletConnected);
-       } catch (err) {
-         this._overlay.send('isWalletConnected_undone', err);
-       }
-     },
-     getCurrentNearAccount: async () => {
-       try {
-         const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
-         this._overlay.send('getCurrentNearAccount_done', wallet.accountId);
-       } catch (err) {
-         this._overlay.send('getCurrentNearAccount_undone', err);
-       }
-     },
-     getTweets: async (op: any, { type, message }: any) => {
-       try {
-         const tweets = await contract.getTweets({ nearId: message.accountId });
-         this._overlay.send('getTweets_done', tweets);
-       } catch (err) {
-         this._overlay.send('getTweets_undone', err);
-       }
-     },
-     addTweet: async (op: any, { type, message }: any) => {
-       try {
-         await contract.addTweet({ tweet: message.tweet });
-         this._overlay.send('addTweet_done');
-       } catch (err) {
-         this._overlay.send('addTweet_undone', err);
-       }
-     },
-     removeTweet: async (op: any, { type, message }: any) => {
-       try {
-         await contract.removeTweet({ tweet: message.tweet });
-         this._overlay.send('removeTweet_done');
-       } catch (err) {
-         this._overlay.send('removeTweet_undone', err);
-       }
-     },
-   });
+  this._overlay = await Core.overlay({ name: 'overlay', title: 'Dapplets x NEAR example' })
+    .listen({
+      connectWallet: async () => {
+        try {
+          const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+          await wallet.connect();
+          this._overlay.send('connectWallet_done', wallet.accountId);
+        } catch (err) {
+          this._overlay.send('connectWallet_undone', err);
+        }
+      },
+      disconnectWallet: async () => {
+        try {
+          const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+          await wallet.disconnect();
+          this._overlay.send('disconnectWallet_done');
+        } catch (err) {
+          this._overlay.send('disconnectWallet_undone', err);
+        }
+      },
+      isWalletConnected: async () => {
+         try {
+          const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+          const isWalletConnected = await wallet.isConnected();
+          this._overlay.send('isWalletConnected_done', isWalletConnected);
+        } catch (err) {
+          this._overlay.send('isWalletConnected_undone', err);
+        }
+      },
+      getCurrentNearAccount: async () => {
+        try {
+          const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
+          this._overlay.send('getCurrentNearAccount_done', wallet.accountId);
+        } catch (err) {
+          this._overlay.send('getCurrentNearAccount_undone', err);
+        }
+      },
+      getTweets: async (op: any, { type, message }: any) => {
+        try {
+          const tweets = await contract.getTweets({ nearId: message.accountId });
+          this._overlay.send('getTweets_done', tweets);
+        } catch (err) {
+          this._overlay.send('getTweets_undone', err);
+        }
+      },
+      addTweet: async (op: any, { type, message }: any) => {
+        try {
+          await contract.addTweet({ tweet: message.tweet });
+          this._overlay.send('addTweet_done');
+        } catch (err) {
+          this._overlay.send('addTweet_undone', err);
+        }
+      },
+      removeTweet: async (op: any, { type, message }: any) => {
+        try {
+          await contract.removeTweet({ tweet: message.tweet });
+          this._overlay.send('removeTweet_done');
+        } catch (err) {
+          this._overlay.send('removeTweet_undone', err);
+        }
+      },
+    });
 }
 ```
 
@@ -360,12 +360,12 @@ The next step is to change `./overlay/src/dappletBridge.ts`. We have to make fun
 
 ```typescript
 async connectWallet(): Promise<string> {
- return this.call(
-   'connectWallet',
-   null,
-   'connectWallet_done',
-   'connectWallet_undone'
- );
+  return this.call(
+    ' connectWallet',
+    null,
+    'connectWallet_done',
+    'connectWallet_undone'
+  );
 }
 
 async disconnectWallet(): Promise<string> {

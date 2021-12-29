@@ -9,13 +9,13 @@ export default class TwitterFeature {
 
   async activate(): Promise<void> {
 
-    const contract = Core.contract('near', 'dev-1634890606019-41631155713650', {
+    const contract = await Core.contract('near', 'dev-1634890606019-41631155713650', {
       viewMethods: ['getTweets'],
       changeMethods: ['addTweet', 'removeTweet'],
     });
 
     if (!this._overlay) {
-      this._overlay = (<any>Core).overlay({ name: 'overlay', title: 'Dapplets x NEAR example' })
+      this._overlay = Core.overlay({ name: 'overlay', title: 'Dapplets x NEAR example' })
         .listen({
           connectWallet: async () => {
             try {

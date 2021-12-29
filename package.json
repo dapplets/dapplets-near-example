@@ -1,6 +1,6 @@
 {
   "name": "dapplets-near-example",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Example of a dapplet working with NEAR protocol. Learn NEAR x Dapplets Project",
   "main": "",
   "scripts": {
