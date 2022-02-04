@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Divider, Image } from 'semantic-ui-react';
-import { bridge } from './dappletBridge';
+import Bridge from '@dapplets/dapplet-overlay-bridge';
 
-interface ICtx {
+interface ITweet {
   authorFullname: string
   authorUsername?: string
   authorImg: string
@@ -10,46 +10,66 @@ interface ICtx {
   text: string
 }
 
+interface IDappletApi {
+  connectWallet: () => Promise<string>
+  disconnectWallet: () => Promise<void>
+  isWalletConnected: () => Promise<boolean>
+  getCurrentNearAccount: () => Promise<string>
+  getTweets: (nearId: string) => Promise<string[]>
+  addTweet: (tweet: string) => Promise<void>
+  removeTweet: (tweet: string) => Promise<void>
+}
+
+const dapplet = new Bridge<IDappletApi>();
+
 export default () => {
 
-  const [parsedCtx, setParsedCtx] = useState<ICtx>();
+  const [parsedCtx, setParsedCtx] = useState<ITweet>();
   const [nearAccount, setNearAccount] = useState<string>();
   const [savedTweets, setSavedTweets] = useState<string[]>();
 
   useEffect(() => {
-    bridge.onData((data?: ICtx) => {
-      setParsedCtx(data);
-    });
-    bridge.isWalletConnected().then(async(isWalletConnected) => {
+    dapplet.on('data', (data?: ITweet) => setParsedCtx(data));
+    dapplet.isWalletConnected().then(async(isWalletConnected: any) => {
       let accountName: string | undefined
       if (isWalletConnected) {
-        accountName = await bridge.getCurrentNearAccount();
+        accountName = await dapplet.getCurrentNearAccount();
       }
       setNearAccount(accountName);
 
       let tweets: string[] | undefined = undefined;
-      if (accountName) tweets = await bridge.getTweets(accountName);
+      if (accountName) tweets = await dapplet.getTweets(accountName);
       setSavedTweets(tweets);
     });
+    return () => dapplet.off('data');
   }, []);
 
   const handleSaveTweet = async (e: any) => {
     e.preventDefault();
     e.stopPropagation();
     const stringifiedCtx = JSON.stringify(parsedCtx);
-    if (savedTweets?.includes(stringifiedCtx)) return; 
-    await bridge.addTweet(stringifiedCtx);
+    if (savedTweets?.includes(stringifiedCtx)) return;
+    try {
+      await dapplet.addTweet(stringifiedCtx);
+    } catch (err) {
+      console.log('Error in handleSaveTweet().', err)
+    }
+
     let tweets: string[] | undefined = undefined;
-    if (nearAccount) tweets = await bridge.getTweets(nearAccount);
+    if (nearAccount) tweets = await dapplet.getTweets(nearAccount);
     setSavedTweets(tweets);
   }
 
   const handleDeleteTweet = (ctx: string) => async (e: any) => {
     e.preventDefault();
     e.stopPropagation();
-    await bridge.removeTweet(ctx);
+    try {
+      await dapplet.removeTweet(ctx);
+    } catch (err) {
+      console.log('Error in handleDeleteTweet().', err)
+    }
     let tweets: string[] | undefined = undefined;
-    if (nearAccount) tweets = await bridge.getTweets(nearAccount);
+    if (nearAccount) tweets = await dapplet.getTweets(nearAccount);
     setSavedTweets(tweets);
   }
 
@@ -62,16 +82,16 @@ export default () => {
               color='red'
               className='login'
               onClick={async () => {
-                const isWalletConnected = await bridge.isWalletConnected();
+                const isWalletConnected = await dapplet.isWalletConnected();
                 let accountName: string;
                 if (!isWalletConnected) {
-                  accountName = await bridge.connectWallet();
+                  accountName = await dapplet.connectWallet();
                 } else {
-                  accountName = await bridge.getCurrentNearAccount();
+                  accountName = await dapplet.getCurrentNearAccount();
                 }
                 setNearAccount(accountName);
                 let tweets: string[] | undefined = undefined;
-                if (accountName) tweets = await bridge.getTweets(accountName);
+                if (accountName) tweets = await dapplet.getTweets(accountName);
                 setSavedTweets(tweets);
               }}
             >
@@ -85,9 +105,9 @@ export default () => {
                 color='red'
                 className='logout'
                 onClick={async () => {
-                  const isWalletConnected = await bridge.isWalletConnected();
+                  const isWalletConnected = await dapplet.isWalletConnected();
                   if (isWalletConnected) {
-                    await bridge.disconnectWallet();
+                    await dapplet.disconnectWallet();
                   }
                   setNearAccount(undefined);
                   setSavedTweets(undefined);
@@ -141,7 +161,7 @@ export default () => {
               Saved Tweets:
             </h4>
             {savedTweets.map((savedTweet, i) => {
-              const tweetData: ICtx = JSON.parse(savedTweet);
+              const tweetData: ITweet = JSON.parse(savedTweet);
               return (
                 <Card key={i} fluid className='overlay-card'>
                   <Card.Content>
