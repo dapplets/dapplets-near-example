@@ -30,17 +30,20 @@ export default () => {
 
   useEffect(() => {
     dapplet.on('data', (data?: ITweet) => setParsedCtx(data));
-    dapplet.isWalletConnected().then(async(isWalletConnected: any) => {
-      let accountName: string | undefined
-      if (isWalletConnected) {
-        accountName = await dapplet.getCurrentNearAccount();
-      }
-      setNearAccount(accountName);
+    // dapplet.isWalletConnected().then(async(isWalletConnected: any) => {
+    //   let accountName: string | undefined
+    //   if (isWalletConnected) {
+    //     accountName = await dapplet.getCurrentNearAccount();
+    //   }
+    //   setNearAccount(accountName);
 
-      let tweets: string[] | undefined = undefined;
-      if (accountName) tweets = await dapplet.getTweets(accountName);
-      setSavedTweets(tweets);
-    });
+    //   let tweets: string[] | undefined = undefined;
+    //   if (accountName) tweets = await dapplet.getTweets(accountName);
+    //   setSavedTweets(tweets);
+    // });
+    dapplet.getTweets('dapplets.testnet').then(x => {
+      setSavedTweets(x);
+    })
     return () => dapplet.off('data');
   }, []);
 
@@ -77,11 +80,12 @@ export default () => {
     <>
       <header style={{ justifyContent: nearAccount ? 'space-between' : 'center' }}>
         {!nearAccount ? (
-            <Button
-              basic
-              color='red'
-              className='login'
-              onClick={async () => {
+          <Button
+            basic
+            color='red'
+            className='login'
+            onClick={async () => {
+              try {
                 const isWalletConnected = await dapplet.isWalletConnected();
                 let accountName: string;
                 if (!isWalletConnected) {
@@ -93,29 +97,37 @@ export default () => {
                 let tweets: string[] | undefined = undefined;
                 if (accountName) tweets = await dapplet.getTweets(accountName);
                 setSavedTweets(tweets);
-              }}
-            >
-              Log in to my account
-            </Button>
-          ) : (
-            <>
-              <p style={{ fontSize: 16 }}>{nearAccount}</p>
-              <Button
-                basic
-                color='red'
-                className='logout'
-                onClick={async () => {
+              } catch (err) {
+                console.log('ERROR while login:', err)
+              }
+            }}
+          >
+            Log in to my account
+          </Button>
+        ) : (
+          <>
+            <p style={{ fontSize: 16 }}>{nearAccount}</p>
+            <Button
+              basic
+              color='red'
+              className='logout'
+              onClick={async () => {
+                try {
                   const isWalletConnected = await dapplet.isWalletConnected();
                   if (isWalletConnected) {
                     await dapplet.disconnectWallet();
                   }
                   setNearAccount(undefined);
                   setSavedTweets(undefined);
-                }}
-              >
-                Log out
-              </Button>
-            </>)}
+                } catch (err) {
+                  console.log('ERROR while logout:', err)
+                }
+              }}
+            >
+              Log out
+            </Button>
+          </>
+        )}
       </header>
 
       <main>

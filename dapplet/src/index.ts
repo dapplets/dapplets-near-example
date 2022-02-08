@@ -1,15 +1,6 @@
 import {} from '@dapplets/dapplet-extension';
 import EXAMPLE_IMG from './icons/near_dapplet_icon.svg';
-
-interface IDappletApi {
-  connectWallet: () => Promise<string>
-  disconnectWallet: () => Promise<void>
-  isWalletConnected: () => Promise<boolean>
-  getCurrentNearAccount: () => Promise<string>
-  getTweets: (nearId: string) => Promise<string[]>
-  addTweet: (tweet: string) => Promise<void>
-  removeTweet: (tweet: string) => Promise<void>
-}
+import DappletApi from './api';
 
 @Injectable
 export default class TwitterFeature {
@@ -19,38 +10,8 @@ export default class TwitterFeature {
 
   async activate(): Promise<void> {
 
-    const contract = await Core.contract(
-      'near',
-      'dev-1634890606019-41631155713650',
-      {
-        viewMethods: ['getTweets'],
-        changeMethods: ['addTweet', 'removeTweet'],
-      }
-    );
-
     if (!this._overlay) {
-      const dappletApi: IDappletApi = {
-        connectWallet: async () => {
-          const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
-          await wallet.connect();
-          return wallet.accountId;
-        },
-        disconnectWallet: async () => {
-          const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
-          wallet.disconnect();
-        },
-        isWalletConnected: async () => {
-          const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
-          return wallet.isConnected();
-        },
-        getCurrentNearAccount: async () => {
-          const wallet = await Core.wallet({ type: 'near', network: 'testnet' });
-          return wallet.accountId;
-        },
-        getTweets: (nearId: string) => contract.getTweets({ nearId }),
-        addTweet: (tweet: string) => contract.addTweet({ tweet }),
-        removeTweet: (tweet: string) => contract.removeTweet({ tweet }),
-      }
+      const dappletApi = new DappletApi();
       this._overlay = (<any>Core).overlay(
         {
           name: 'overlay',
