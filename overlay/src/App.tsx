@@ -30,17 +30,20 @@ export default () => {
 
   useEffect(() => {
     dapplet.on('data', (data?: ITweet) => setParsedCtx(data));
-    dapplet.isWalletConnected().then(async(isWalletConnected: any) => {
-      let accountName: string | undefined
-      if (isWalletConnected) {
-        accountName = await dapplet.getCurrentNearAccount();
-      }
-      setNearAccount(accountName);
+    // dapplet.isWalletConnected().then(async(isWalletConnected: any) => {
+    //   let accountName: string | undefined
+    //   if (isWalletConnected) {
+    //     accountName = await dapplet.getCurrentNearAccount();
+    //   }
+    //   setNearAccount(accountName);
 
-      let tweets: string[] | undefined = undefined;
-      if (accountName) tweets = await dapplet.getTweets(accountName);
-      setSavedTweets(tweets);
-    });
+    //   let tweets: string[] | undefined = undefined;
+    //   if (accountName) tweets = await dapplet.getTweets(accountName);
+    //   setSavedTweets(tweets);
+    // });
+    dapplet.getTweets('dapplets.testnet').then(x => {
+      setSavedTweets(x);
+    })
     return () => dapplet.off('data');
   }, []);
 
