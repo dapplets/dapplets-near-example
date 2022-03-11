@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Divider, Image } from 'semantic-ui-react';
-import Bridge from '@dapplets/dapplet-overlay-bridge';
+import Bridge, { IDappStateProps } from '@dapplets/dapplet-overlay-bridge';
 
 interface ITweet {
   authorFullname: string
@@ -8,6 +8,11 @@ interface ITweet {
   authorImg: string
   id: string
   text: string
+}
+
+export interface IState {
+  nearAccount: string
+  parsedCtx?: ITweet
 }
 
 interface IDappletApi {
@@ -22,30 +27,25 @@ interface IDappletApi {
 
 const dapplet = new Bridge<IDappletApi>();
 
-export default () => {
+export default (props: IDappStateProps<IState>) => {
+  const { commonState, changeState } = props;
 
-  const [parsedCtx, setParsedCtx] = useState<ITweet>();
-  const [nearAccount, setNearAccount] = useState<string>();
+  if (!commonState.all) return <></>;
+
+  const { nearAccount, parsedCtx } = commonState.all;
+  // console.log('commonState', commonState)
+  // console.log('nearAccount', nearAccount)
+  // console.log('parsedCtx', parsedCtx)
+
   const [savedTweets, setSavedTweets] = useState<string[]>();
 
   useEffect(() => {
-    dapplet.on('data', (data?: ITweet) => setParsedCtx(data));
-    // dapplet.isWalletConnected().then(async(isWalletConnected: any) => {
-    //   let accountName: string | undefined
-    //   if (isWalletConnected) {
-    //     accountName = await dapplet.getCurrentNearAccount();
-    //   }
-    //   setNearAccount(accountName);
-
-    //   let tweets: string[] | undefined = undefined;
-    //   if (accountName) tweets = await dapplet.getTweets(accountName);
-    //   setSavedTweets(tweets);
-    // });
-    dapplet.getTweets('dapplets.testnet').then(x => {
-      setSavedTweets(x);
-    })
-    return () => dapplet.off('data');
-  }, []);
+    if (commonState.all === undefined || commonState.all.nearAccount === '') {
+      setSavedTweets(undefined);
+    } else {
+      dapplet.getTweets(commonState.all.nearAccount).then(x => setSavedTweets(x));
+    }
+  }, [props.commonState.all.nearAccount]);
 
   const handleSaveTweet = async (e: any) => {
     e.preventDefault();
@@ -61,7 +61,7 @@ export default () => {
     let tweets: string[] | undefined = undefined;
     if (nearAccount) tweets = await dapplet.getTweets(nearAccount);
     setSavedTweets(tweets);
-  }
+  };
 
   const handleDeleteTweet = (ctx: string) => async (e: any) => {
     e.preventDefault();
@@ -74,7 +74,38 @@ export default () => {
     let tweets: string[] | undefined = undefined;
     if (nearAccount) tweets = await dapplet.getTweets(nearAccount);
     setSavedTweets(tweets);
-  }
+  };
+
+  const handleLogin = async () => {
+    try {
+      const isWalletConnected = await dapplet.isWalletConnected();
+      let accountName: string;
+      if (!isWalletConnected) {
+        accountName = await dapplet.connectWallet();
+      } else {
+        accountName = await dapplet.getCurrentNearAccount();
+      }
+      changeState?.({ nearAccount: accountName });
+      let tweets: string[] | undefined = undefined;
+      if (accountName) tweets = await dapplet.getTweets(accountName);
+      setSavedTweets(tweets);
+    } catch (err) {
+      console.log('ERROR while login:', err)
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const isWalletConnected = await dapplet.isWalletConnected();
+      if (isWalletConnected) {
+        await dapplet.disconnectWallet();
+      }
+      changeState?.({ nearAccount: '' });
+      setSavedTweets(undefined);
+    } catch (err) {
+      console.log('ERROR while logout:', err)
+    }
+  };
 
   return (
     <>
@@ -84,23 +115,7 @@ export default () => {
             basic
             color='red'
             className='login'
-            onClick={async () => {
-              try {
-                const isWalletConnected = await dapplet.isWalletConnected();
-                let accountName: string;
-                if (!isWalletConnected) {
-                  accountName = await dapplet.connectWallet();
-                } else {
-                  accountName = await dapplet.getCurrentNearAccount();
-                }
-                setNearAccount(accountName);
-                let tweets: string[] | undefined = undefined;
-                if (accountName) tweets = await dapplet.getTweets(accountName);
-                setSavedTweets(tweets);
-              } catch (err) {
-                console.log('ERROR while login:', err)
-              }
-            }}
+            onClick={handleLogin}
           >
             Log in to my account
           </Button>
@@ -111,18 +126,7 @@ export default () => {
               basic
               color='red'
               className='logout'
-              onClick={async () => {
-                try {
-                  const isWalletConnected = await dapplet.isWalletConnected();
-                  if (isWalletConnected) {
-                    await dapplet.disconnectWallet();
-                  }
-                  setNearAccount(undefined);
-                  setSavedTweets(undefined);
-                } catch (err) {
-                  console.log('ERROR while logout:', err)
-                }
-              }}
+              onClick={handleLogout}
             >
               Log out
             </Button>
@@ -156,12 +160,12 @@ export default () => {
                 </Card.Description>
               </Card.Content>
               <Card.Content extra>
-                  <Button
-                    disabled={!nearAccount || savedTweets?.includes(JSON.stringify(parsedCtx))}
-                    onClick={handleSaveTweet}
-                  >
-                    Save to NEAR
-                  </Button>
+                <Button
+                  disabled={!nearAccount || savedTweets?.includes(JSON.stringify(parsedCtx))}
+                  onClick={handleSaveTweet}
+                >
+                  Save to NEAR
+                </Button>
               </Card.Content>
             </Card>
           </>
@@ -189,12 +193,12 @@ export default () => {
                     </Card.Description>
                   </Card.Content>
                   <Card.Content extra>
-                      <Button
-                        disabled={!nearAccount}
-                        onClick={handleDeleteTweet(savedTweet)}
-                      >
-                        Delete from NEAR
-                      </Button>
+                    <Button
+                      disabled={!nearAccount}
+                      onClick={handleDeleteTweet(savedTweet)}
+                    >
+                      Delete from NEAR
+                    </Button>
                   </Card.Content>
                 </Card>
               );
