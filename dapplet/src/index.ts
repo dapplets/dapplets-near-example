@@ -22,6 +22,16 @@ export default class TwitterFeature {
 
   async activate(): Promise<void> {
     const dappletApi = new DappletApi();
+    if (Core.state === undefined) {
+      alert(`
+DAPPLETS X NEAR EXAMPLE DAPPLET
+
+Download the latest version of Dapplets Extension here:
+
+https://github.com/dapplets/dapplet-extension/releases/latest
+      `);
+      return;
+    }
     const state = Core.state<IState>({ nearAccount: '' });
     const overlay = Core.overlay({ name: 'overlay', title: 'Dapplets x NEAR example' })
       .useState(state)
