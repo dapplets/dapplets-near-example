@@ -28,24 +28,21 @@ interface IDappletApi {
 const dapplet = new Bridge<IDappletApi>();
 
 export default (props: IDappStateProps<IState>) => {
-  const { commonState, changeState } = props;
+  const { sharedState, changeSharedState } = props;
 
-  if (!commonState.all) return <></>;
+  if (!sharedState.global) return <></>;
 
-  const { nearAccount, parsedCtx } = commonState.all;
-  // console.log('commonState', commonState)
-  // console.log('nearAccount', nearAccount)
-  // console.log('parsedCtx', parsedCtx)
+  const { nearAccount, parsedCtx } = sharedState.global;
 
   const [savedTweets, setSavedTweets] = useState<string[]>();
 
   useEffect(() => {
-    if (commonState.all === undefined || commonState.all.nearAccount === '') {
+    if (sharedState.global === undefined || sharedState.global.nearAccount === '') {
       setSavedTweets(undefined);
     } else {
-      dapplet.getTweets(commonState.all.nearAccount).then(x => setSavedTweets(x));
+      dapplet.getTweets(sharedState.global.nearAccount).then(x => setSavedTweets(x));
     }
-  }, [props.commonState.all.nearAccount]);
+  }, [props.sharedState.global.nearAccount]);
 
   const handleSaveTweet = async (e: any) => {
     e.preventDefault();
@@ -85,7 +82,7 @@ export default (props: IDappStateProps<IState>) => {
       } else {
         accountName = await dapplet.getCurrentNearAccount();
       }
-      changeState?.({ nearAccount: accountName });
+      changeSharedState?.({ nearAccount: accountName });
       let tweets: string[] | undefined = undefined;
       if (accountName) tweets = await dapplet.getTweets(accountName);
       setSavedTweets(tweets);
@@ -100,7 +97,7 @@ export default (props: IDappStateProps<IState>) => {
       if (isWalletConnected) {
         await dapplet.disconnectWallet();
       }
-      changeState?.({ nearAccount: '' });
+      changeSharedState?.({ nearAccount: '' });
       setSavedTweets(undefined);
     } catch (err) {
       console.log('ERROR while logout:', err)

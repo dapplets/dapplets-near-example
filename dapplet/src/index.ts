@@ -39,10 +39,10 @@ https://github.com/dapplets/dapplet-extension/releases/latest
 
     const isWalletConnected = await dappletApi.isWalletConnected();
     const nearAccount = isWalletConnected ? await dappletApi.getCurrentNearAccount() : '';
-    state.all.nearAccount.next(nearAccount);
+    state.global.nearAccount.next(nearAccount);
 
     Core.onAction(() => {
-      state.all.parsedCtx.next(undefined);
+      state.global.parsedCtx.next(undefined);
       overlay.open();
     });
 
@@ -54,7 +54,7 @@ https://github.com/dapplets/dapplet-extension/releases/latest
             img: EXAMPLE_IMG,
             tooltip: 'Parse Tweet',
             exec: () => {
-              state.all.parsedCtx.next(ctx);
+              state.global.parsedCtx.next(ctx);
               if (!overlay.isOpen()) overlay.open();
             },
           },
